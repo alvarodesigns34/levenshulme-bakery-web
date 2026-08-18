@@ -164,12 +164,24 @@
     transition:transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
   }
   .header-cta:hover{background:var(--accent-dark);transform:translateY(-1px);}
-  .menu-toggle{display:none;background:none;border:none;padding:6px;cursor:pointer;}
+  .menu-toggle{display:none;background:none;border:none;padding:6px;cursor:pointer;color:var(--ink);}
   .menu-toggle svg{width:24px;height:24px;}
   .cta-short{display:none;}
 
   @media (max-width:860px){
-    nav.links{display:none;}
+    .nav-inner{position:relative;}
+    nav.links{
+      display:none;
+      position:absolute;top:100%;left:0;right:0;
+      flex-direction:column;gap:0;
+      background:var(--surface);
+      border-bottom:1px solid var(--hairline);
+      box-shadow:var(--shadow-md);
+      padding:8px 20px 16px;
+    }
+    nav.links.open{display:flex;}
+    nav.links a{padding:14px 4px;border-bottom:1px solid var(--hairline);}
+    nav.links a:last-child{border-bottom:none;}
     .menu-toggle{display:inline-flex;}
   }
   @media (max-width:480px){
@@ -245,6 +257,7 @@
   }
   @media (max-width:900px){ .story-grid{grid-template-columns:1fr;gap:36px;} }
   .story-art{border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-md);position:sticky;top:110px;}
+  @media (max-width:900px){ .story-art{position:static;top:auto;} }
   .story-art img{width:100%;object-fit:cover;aspect-ratio:4/5;}
   .story-art figcaption{
     background:var(--ink);color:var(--paper);font-size:.82rem;padding:12px 16px;
@@ -449,7 +462,7 @@
       <span class="brand-mark">LB</span>
       Levenshulme Bakery
     </a>
-    <nav class="links">
+    <nav class="links" id="mobile-nav">
       <a href="#story">Story</a>
       <a href="#menu">Menu</a>
       <a href="#gallery">Gallery</a>
@@ -457,6 +470,9 @@
       <a href="#find">Find us</a>
     </nav>
     <a href="tel:+441618796356" class="header-cta"><span class="cta-full">Call · 0161 879 6356</span><span class="cta-short">Call</span></a>
+    <button class="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
   </div>
 </header>
 
@@ -467,8 +483,8 @@
     <div class="wrap hero-grid">
       <div>
         <span class="eyebrow">842 Stockport Road · Levenshulme</span>
-        <h1>Same as always.<br><em>No fuss.</em></h1>
-        <p class="lede">A cash-only corner shop that's become one of the most talked-about kebab counters in Manchester — samoon baked on site every morning, chicken and lamb carved straight off the spit, all day.</p>
+        <h1>Fresh bread,<br><em>real fire.</em></h1>
+        <p class="lede">A cash-only corner shop on Stockport Road — samoon baked on site every morning, chicken and lamb carved straight off the spit, all day.</p>
         <div class="rating-row">
           <span class="stars">★★★★★</span>
           <span><b>4.6</b> average from <b>1,100+</b> Google reviews</span>
@@ -494,7 +510,7 @@
   <section id="story">
     <div class="wrap">
       <span class="eyebrow reveal">How it works</span>
-      <h2 class="title reveal">Bread first. Everything else follows.</h2>
+      <h2 class="title reveal">Fresh dough every morning. Meat carved to order all day.</h2>
 
       <div class="story-grid">
         <figure class="story-art reveal">
@@ -650,7 +666,7 @@
   <section id="reviews" style="background:var(--surface-raised);">
     <div class="wrap">
       <span class="eyebrow reveal">Word of mouth</span>
-      <h2 class="title reveal">Nobody here bought an ad for this</h2>
+      <h2 class="title reveal">1,100+ Google reviews, zero advertising</h2>
 
       <div class="receipts">
         <div class="receipt reveal">
@@ -719,8 +735,8 @@
     <div class="wrap">
       <div class="contact-band reveal">
         <div>
-          <h2>No online ordering. That's sort of the point.</h2>
-          <p>Walk in, ring ahead, or send a message on Facebook. Bring cash — that's the one house rule.</p>
+          <h2>No online ordering — call or walk in.</h2>
+          <p>Ring ahead for a big order, or just walk in. Cash only, no cards.</p>
         </div>
         <div class="contact-right">
           <a class="phone-link" href="tel:+441618796356">0161 879 6356</a>
@@ -748,7 +764,7 @@
           Mon–Sun, 10:00–20:30
         </address>
       </div>
-      <p class="footer-note">Independent and family-run, not affiliated with any chain. Same shop, same spit, same bread — now with a website.</p>
+      <p class="footer-note">Independently owned and run, not part of any chain.</p>
     </div>
     <div class="footer-bottom">
       <span>© <span id="year"></span> Levenshulme Bakery</span>
@@ -760,7 +776,20 @@
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // mobile nav: simple toggle fallback via anchor scroll already works;
+  // mobile nav toggle
+  const menuToggle = document.querySelector('.menu-toggle');
+  const mobileNav = document.getElementById('mobile-nav');
+  if(menuToggle && mobileNav){
+    menuToggle.addEventListener('click', ()=>{
+      const isOpen = mobileNav.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+    mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=>{
+      mobileNav.classList.remove('open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    }));
+  }
+
   // reveal-on-scroll
   const els = document.querySelectorAll('.reveal');
   if('IntersectionObserver' in window){
